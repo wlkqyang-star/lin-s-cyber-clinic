@@ -1,9 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { useGame } from '@/contexts/GameContext';
 import { motion } from 'framer-motion';
+import { useLocation } from 'wouter';
 
 export default function Menu() {
   const { startGame } = useGame();
+  const [, setLocation] = useLocation();
 
   return (
     <div 
@@ -72,6 +74,7 @@ export default function Menu() {
           <Button
             size="lg"
             variant="outline"
+            onClick={() => setLocation('/instructions')}
             className="font-pixel text-xl px-12 py-6 bg-black/50 hover:bg-black/70 text-[#00ff00] border-2 border-[#00ff00] transition-all hover:scale-105"
           >
             游戏说明

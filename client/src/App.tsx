@@ -5,15 +5,20 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { GameProvider, useGame } from "./contexts/GameContext";
 import Menu from "./pages/Menu";
 import Game from "./pages/Game";
+import Instructions from "./pages/Instructions";
+import { Route, Switch } from "wouter";
 
 function GameRouter() {
   const { gameState } = useGame();
 
-  if (gameState.phase === 'menu') {
-    return <Menu />;
-  }
-
-  return <Game />;
+  return (
+    <Switch>
+      <Route path="/instructions" component={Instructions} />
+      <Route path="/">
+        {gameState.phase === 'menu' ? <Menu /> : <Game />}
+      </Route>
+    </Switch>
+  );
 }
 
 function App() {
