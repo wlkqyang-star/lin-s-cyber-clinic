@@ -100,10 +100,11 @@ export const PATIENT_NAMES = [
 ];
 
 export const HERBS = [
-  '量子枸杞', '纳米当归', '区块链人参', '云端灵芝',
-  '5G黄芪', '赛博甘草', '全息何首乌', '神经网络川芎',
-  '加密白芍', '算法茯苓', '数据流党参', '像素决明子',
-  '代码生姜', '防火墙柴胡', '带宽菊花'
+  '睛明穴药膏', '黑屏凝视法', '断网茶', '磁石手串',
+  '归脾汤', '液氮冷凝剂', '生姜擦剂', '量子纠缠剂',
+  '菊花茶', '闭口禅丸', '乱序浏览方', '心率重置剂',
+  '艾灸包', '手写日记本', '安神补脑液', 'TCP连接方',
+  '蒸汽眼罩', '枸杞菊花茶', '面部训练方', '纯文字疗法'
 ];
 
 export const ACUPOINTS = [
@@ -124,7 +125,7 @@ export const GAME_CONFIG = {
   INITIAL_REPUTATION: 0,
   PATIENCE_DECAY_RATE: 0.5, // per second
   MAX_PATIENTS_PER_LEVEL: [1, 1, 2, 2, 3, 3, 4, 4, 5, 5],
-  PATIENT_SPAWN_INTERVAL: [30000, 25000, 20000, 18000, 15000, 12000, 10000, 8000, 6000, 5000], // ms
+  PATIENT_SPAWN_INTERVAL: [20000, 18000, 16000, 14000, 12000, 10000, 8000, 6000, 5000, 4000], // ms
   DIAGNOSIS_TIME_LIMIT: [15, 15, 12, 12, 10, 10, 8, 8, 6, 6], // seconds
   PERFECT_SCORE_BONUS: 100,
   GOOD_SCORE_BONUS: 50,
