@@ -6,6 +6,7 @@ import { GameProvider, useGame } from "./contexts/GameContext";
 import Menu from "./pages/Menu";
 import Game from "./pages/Game";
 import Instructions from "./pages/Instructions";
+import Consultation from "./pages/Consultation";
 import { Route, Switch } from "wouter";
 
 function GameRouter() {
@@ -14,6 +15,7 @@ function GameRouter() {
   return (
     <Switch>
       <Route path="/instructions" component={Instructions} />
+      <Route path="/consultation" component={Consultation} />
       <Route path="/">
         {gameState.phase === 'menu' ? <Menu /> : <Game />}
       </Route>

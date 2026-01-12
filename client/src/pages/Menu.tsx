@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 
 export default function Menu() {
-  const { startGame } = useGame();
   const [, setLocation] = useLocation();
 
   return (
@@ -65,7 +64,7 @@ export default function Menu() {
         >
           <Button
             size="lg"
-            onClick={startGame}
+            onClick={() => setLocation('/consultation')}
             className="font-pixel text-2xl px-12 py-8 bg-[#b026ff] hover:bg-[#9020dd] text-white border-2 border-[#00ff00] shadow-lg shadow-[#b026ff]/50 transition-all hover:scale-105"
           >
             开始游戏
