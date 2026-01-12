@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { useGame } from '@/contexts/GameContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Coins, Heart, Calendar, Pause } from 'lucide-react';
+import { Coins, Heart, Calendar, Pause, TrendingUp, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GameOverlay from '@/components/GameOverlay';
+import UpgradePanel from '@/components/UpgradePanel';
+import AchievementsPanel from '@/components/AchievementsPanel';
 import OrderStation from '@/components/stations/OrderStation';
 import DiagnosisStation from '@/components/stations/DiagnosisStation';
 import PharmacyStation from '@/components/stations/PharmacyStation';
@@ -20,6 +23,10 @@ const STATIONS: { id: GameStation; label: string; color: string }[] = [
 
 export default function Game() {
   const { gameState, switchStation, pauseGame } = useGame();
+  const [showUpgradePanel, setShowUpgradePanel] = useState(false);
+  const [showAchievementsPanel, setShowAchievementsPanel] = useState(false);
+
+  const expPercentage = (gameState.experience / gameState.experienceToNextLevel) * 100;
 
   const renderStation = () => {
     switch (gameState.currentStation) {
@@ -39,6 +46,8 @@ export default function Game() {
   return (
     <div className="min-h-screen w-full flex flex-col bg-[#1a1a2e]">
       <GameOverlay />
+      {showUpgradePanel && <UpgradePanel onClose={() => setShowUpgradePanel(false)} />}
+      {showAchievementsPanel && <AchievementsPanel onClose={() => setShowAchievementsPanel(false)} />}
       {/* Header */}
       <header className="bg-black/80 border-b-2 border-[#b026ff]/30 p-4">
         <div className="container flex items-center justify-between">
@@ -69,11 +78,46 @@ export default function Game() {
             <Button
               variant="outline"
               size="sm"
+              onClick={() => setShowAchievementsPanel(true)}
+              className="font-pixel text-sm border-[#ff461f]/40 text-[#ff461f] hover:bg-[#ff461f]/20"
+            >
+              <Award className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowUpgradePanel(true)}
+              className="font-pixel text-sm border-[#00ff00]/40 text-[#00ff00] hover:bg-[#00ff00]/20"
+            >
+              <TrendingUp className="w-4 h-4 mr-1" />
+              升级
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={pauseGame}
               className="font-pixel text-sm border-[#b026ff]/40 text-[#b026ff] hover:bg-[#b026ff]/20"
             >
               <Pause className="w-4 h-4" />
             </Button>
+          </div>
+        </div>
+
+        {/* Experience Bar */}
+        <div className="mt-3 max-w-md">
+          <div className="flex items-center justify-between mb-1">
+            <span className="font-pixel text-xs text-[#b026ff]">LV.{gameState.level}</span>
+            <span className="font-pixel text-xs text-[#b026ff]">
+              {gameState.experience}/{gameState.experienceToNextLevel} EXP
+            </span>
+          </div>
+          <div className="w-full h-2 bg-black/60 rounded-full overflow-hidden border border-[#b026ff]/30">
+            <motion.div
+              className="h-full bg-gradient-to-r from-[#b026ff] to-[#ff461f]"
+              initial={{ width: 0 }}
+              animate={{ width: `${expPercentage}%` }}
+              transition={{ duration: 0.5 }}
+            />
           </div>
         </div>
       </header>

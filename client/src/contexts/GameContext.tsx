@@ -13,6 +13,8 @@ interface GameContextType {
   completePharmacy: (patientId: string, result: MiniGameResult) => void;
   completeAcupuncture: (patientId: string, result: MiniGameResult) => void;
   servePatient: (patientId: string) => void;
+  upgradeClinic: (upgradeType: string, cost: number) => void;
+  addExperience: (amount: number) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -22,12 +24,31 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     phase: 'menu',
     currentStation: 'order',
     level: 1,
+    experience: 0,
+    experienceToNextLevel: 100,
     coins: GAME_CONFIG.INITIAL_COINS,
     reputation: GAME_CONFIG.INITIAL_REPUTATION,
     day: 1,
     patients: [],
     completedOrders: 0,
-    failedOrders: 0
+    failedOrders: 0,
+    unlockedDiseases: DIAGNOSES.slice(0, 5).map(d => d.id),
+    upgrades: {
+      diagnosisSpeed: 1,
+      pharmacySlots: 2,
+      patienceBoost: 0,
+      coinMultiplier: 1.0
+    },
+    achievements: [],
+    statistics: {
+      totalPatientsServed: 0,
+      perfectTreatments: 0,
+      maxCombo: 0,
+      currentCombo: 0,
+      fastestTreatment: Infinity,
+      totalPlayTime: 0,
+      highestLevel: 1
+    }
   });
 
   const patientIdCounter = useRef(0);
@@ -111,12 +132,31 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       phase: 'playing',
       currentStation: 'order',
       level: 1,
+      experience: 0,
+      experienceToNextLevel: 100,
       coins: GAME_CONFIG.INITIAL_COINS,
       reputation: GAME_CONFIG.INITIAL_REPUTATION,
       day: 1,
       patients: [generatePatient()],
       completedOrders: 0,
-      failedOrders: 0
+      failedOrders: 0,
+      unlockedDiseases: DIAGNOSES.slice(0, 5).map(d => d.id),
+      upgrades: {
+        diagnosisSpeed: 1,
+        pharmacySlots: 2,
+        patienceBoost: 0,
+        coinMultiplier: 1.0
+      },
+      achievements: [],
+      statistics: {
+        totalPatientsServed: 0,
+        perfectTreatments: 0,
+        maxCombo: 0,
+        currentCombo: 0,
+        fastestTreatment: Infinity,
+        totalPlayTime: 0,
+        highestLevel: 1
+      }
     });
   }, [generatePatient]);
 
@@ -190,15 +230,109 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       const coins = score > 80 ? GAME_CONFIG.PERFECT_SCORE_BONUS : 
                     score > 50 ? GAME_CONFIG.GOOD_SCORE_BONUS : 
                     GAME_CONFIG.FAIL_PENALTY;
+      
+      // Calculate experience based on score
+      const expGain = Math.floor(score / 2) + 10;
+      const newExp = prev.experience + expGain;
+      let newLevel = prev.level;
+      let newExpRequired = prev.experienceToNextLevel;
+      let remainingExp = newExp;
+      let newUnlocked = prev.unlockedDiseases;
+
+      // Check for level up
+      if (newExp >= prev.experienceToNextLevel) {
+        newLevel = prev.level + 1;
+        remainingExp = newExp - prev.experienceToNextLevel;
+        newExpRequired = Math.floor(prev.experienceToNextLevel * 1.5);
+        
+        // Unlock new diseases every 2 levels
+        if (newLevel % 2 === 0 && prev.unlockedDiseases.length < DIAGNOSES.length) {
+          newUnlocked = [...prev.unlockedDiseases, DIAGNOSES[prev.unlockedDiseases.length].id];
+        }
+      }
 
       return {
         ...prev,
+        level: newLevel,
+        experience: remainingExp,
+        experienceToNextLevel: newExpRequired,
         coins: prev.coins + coins,
         reputation: prev.reputation + Math.floor(score),
         completedOrders: prev.completedOrders + 1,
+        unlockedDiseases: newUnlocked,
         patients: prev.patients.map(p =>
           p.id === patientId ? { ...p, status: 'completed' as const } : p
-        )
+        ),
+        statistics: {
+          ...prev.statistics,
+          totalPatientsServed: prev.statistics.totalPatientsServed + 1,
+          perfectTreatments: score > 95 ? prev.statistics.perfectTreatments + 1 : prev.statistics.perfectTreatments,
+          highestLevel: Math.max(prev.statistics.highestLevel, newLevel)
+        }
+      };
+    });
+  }, []);
+
+  const upgradeClinic = useCallback((upgradeType: string, cost: number) => {
+    setGameState(prev => {
+      if (prev.coins < cost) return prev;
+
+      const newUpgrades = { ...prev.upgrades };
+      
+      switch (upgradeType) {
+        case 'diagnosisSpeed':
+          if (newUpgrades.diagnosisSpeed < 5) newUpgrades.diagnosisSpeed++;
+          break;
+        case 'pharmacySlots':
+          if (newUpgrades.pharmacySlots < 6) newUpgrades.pharmacySlots++;
+          break;
+        case 'patienceBoost':
+          if (newUpgrades.patienceBoost < 50) newUpgrades.patienceBoost += 10;
+          break;
+        case 'coinMultiplier':
+          if (newUpgrades.coinMultiplier < 2.0) newUpgrades.coinMultiplier += 0.2;
+          break;
+      }
+
+      return {
+        ...prev,
+        coins: prev.coins - cost,
+        upgrades: newUpgrades
+      };
+    });
+  }, []);
+
+  const addExperience = useCallback((amount: number) => {
+    setGameState(prev => {
+      const newExp = prev.experience + amount;
+      
+      if (newExp >= prev.experienceToNextLevel) {
+        // Level up!
+        const newLevel = prev.level + 1;
+        const remainingExp = newExp - prev.experienceToNextLevel;
+        const newExpRequired = Math.floor(prev.experienceToNextLevel * 1.5);
+        
+        // Unlock new diseases every 2 levels
+        const newUnlocked = newLevel % 2 === 0 && prev.unlockedDiseases.length < DIAGNOSES.length
+          ? [...prev.unlockedDiseases, DIAGNOSES[prev.unlockedDiseases.length].id]
+          : prev.unlockedDiseases;
+
+        return {
+          ...prev,
+          level: newLevel,
+          experience: remainingExp,
+          experienceToNextLevel: newExpRequired,
+          unlockedDiseases: newUnlocked,
+          statistics: {
+            ...prev.statistics,
+            highestLevel: Math.max(prev.statistics.highestLevel, newLevel)
+          }
+        };
+      }
+
+      return {
+        ...prev,
+        experience: newExp
       };
     });
   }, []);
@@ -215,7 +349,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         completeDiagnosis,
         completePharmacy,
         completeAcupuncture,
-        servePatient
+        servePatient,
+        upgradeClinic,
+        addExperience
       }}
     >
       {children}

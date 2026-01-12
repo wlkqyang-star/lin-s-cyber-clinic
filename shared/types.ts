@@ -33,12 +33,46 @@ export interface GameState {
   phase: GamePhase;
   currentStation: GameStation;
   level: number;
+  experience: number;
+  experienceToNextLevel: number;
   coins: number;
   reputation: number;
   day: number;
   patients: Patient[];
   completedOrders: number;
   failedOrders: number;
+  unlockedDiseases: string[]; // IDs of unlocked diseases
+  upgrades: ClinicUpgrades;
+  achievements: Achievement[];
+  statistics: GameStatistics;
+}
+
+export interface ClinicUpgrades {
+  diagnosisSpeed: number; // 1-5 levels
+  pharmacySlots: number; // 2-6 slots
+  patienceBoost: number; // 0-50% boost
+  coinMultiplier: number; // 1.0-2.0x
+}
+
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  unlocked: boolean;
+  unlockedAt?: number;
+  progress: number;
+  target: number;
+}
+
+export interface GameStatistics {
+  totalPatientsServed: number;
+  perfectTreatments: number;
+  maxCombo: number;
+  currentCombo: number;
+  fastestTreatment: number;
+  totalPlayTime: number;
+  highestLevel: number;
 }
 
 export interface MiniGameResult {
