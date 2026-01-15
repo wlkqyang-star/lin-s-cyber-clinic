@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import GameOverlay from '@/components/GameOverlay';
 import UpgradePanel from '@/components/UpgradePanel';
 import AchievementsPanel from '@/components/AchievementsPanel';
+import VideoReward from '@/components/VideoReward';
 import OrderStation from '@/components/stations/OrderStation';
 import DiagnosisStation from '@/components/stations/DiagnosisStation';
 import PharmacyStation from '@/components/stations/PharmacyStation';
@@ -22,7 +23,7 @@ const STATIONS: { id: GameStation; label: string; color: string }[] = [
 ];
 
 export default function Game() {
-  const { gameState, switchStation, pauseGame } = useGame();
+  const { gameState, switchStation, pauseGame, showVideoReward, setShowVideoReward } = useGame();
   const [showUpgradePanel, setShowUpgradePanel] = useState(false);
   const [showAchievementsPanel, setShowAchievementsPanel] = useState(false);
 
@@ -215,6 +216,15 @@ export default function Game() {
           ))}
         </div>
       </nav>
+
+      {/* Video Reward Popup */}
+      <VideoReward
+        isOpen={showVideoReward}
+        onClose={() => setShowVideoReward(false)}
+        videoPath="/杏林深处.mp4"
+        title="成就解锁：初窥门径"
+        description="恭喜你成功治疗了5位患者！特别奖励视频已解锁"
+      />
     </div>
   );
 }

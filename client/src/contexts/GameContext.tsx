@@ -15,11 +15,16 @@ interface GameContextType {
   servePatient: (patientId: string) => void;
   upgradeClinic: (upgradeType: string, cost: number) => void;
   addExperience: (amount: number) => void;
+  showVideoReward: boolean;
+  setShowVideoReward: (show: boolean) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
+  const [videoUnlocked, setVideoUnlocked] = useState(false);
+  const [showVideoReward, setShowVideoReward] = useState(false);
+
   const [gameState, setGameState] = useState<GameState>({
     phase: 'menu',
     currentStation: 'order',
@@ -251,6 +256,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
+      const newCompletedOrders = prev.completedOrders + 1;
+      
+      // Check if video should be unlocked (after completing 5 patients)
+      if (newCompletedOrders === 5 && !videoUnlocked) {
+        setVideoUnlocked(true);
+        setShowVideoReward(true);
+      }
+
       return {
         ...prev,
         level: newLevel,
@@ -258,7 +271,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         experienceToNextLevel: newExpRequired,
         coins: prev.coins + coins,
         reputation: prev.reputation + Math.floor(score),
-        completedOrders: prev.completedOrders + 1,
+        completedOrders: newCompletedOrders,
         unlockedDiseases: newUnlocked,
         patients: prev.patients.map(p =>
           p.id === patientId ? { ...p, status: 'completed' as const } : p
@@ -271,7 +284,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         }
       };
     });
-  }, []);
+  }, [videoUnlocked]);
 
   const upgradeClinic = useCallback((upgradeType: string, cost: number) => {
     setGameState(prev => {
@@ -351,7 +364,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         completeAcupuncture,
         servePatient,
         upgradeClinic,
-        addExperience
+        addExperience,
+        showVideoReward,
+        setShowVideoReward
       }}
     >
       {children}
