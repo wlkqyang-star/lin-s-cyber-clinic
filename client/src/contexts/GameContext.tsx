@@ -258,8 +258,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
       const newCompletedOrders = prev.completedOrders + 1;
       
-      // Check if video should be unlocked (after completing 5 patients)
-      if (newCompletedOrders === 5 && !videoUnlocked) {
+      // Check if video should be unlocked (after completing 1 patient)
+      if (newCompletedOrders === 1 && !videoUnlocked) {
         setVideoUnlocked(true);
         setShowVideoReward(true);
       }

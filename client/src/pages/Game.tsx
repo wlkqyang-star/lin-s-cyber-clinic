@@ -223,7 +223,7 @@ export default function Game() {
         onClose={() => setShowVideoReward(false)}
         videoPath="/杏林深处.mp4"
         title="成就解锁：初窥门径"
-        description="恭喜你成功治疗了5位患者！特别奖励视频已解锁"
+        description="恭喜你成功治疗了第一位患者！特别奖励视频已解锁"
       />
     </div>
   );
